@@ -50,49 +50,58 @@ void ReferenceTreeWidget::update()
 {
     clear();
 
-    addNode(ReferenceTreeWidget::HeaderBranches, Reference::BRANCH);
-    addRemotesNodes();
-    addNode(ReferenceTreeWidget::HeaderTags, Reference::TAG);
+    addNode(HeaderBranches, Reference::BRANCH);
+    addNode(HeaderRemotes, Reference::REMOTE_BRANCH);
+    addNode(HeaderTags, Reference::TAG);
 
     expandAll();
 }
 
 void ReferenceTreeWidget::addNode(ItemType headerType, Reference::Type type)
 {
-    QStringList tempList = m_git->getAllRefNames(type, !Git::optOnlyLoaded);
-    tempList.sort();
-
-    QTreeWidgetItem *node;
+    QTreeWidgetItem *headerNode = new QTreeWidgetItem(this, headerType);
 
     switch (headerType) {
     case (HeaderBranches):
-        node = new QTreeWidgetItem(this, HeaderBranches);
-        node->setData(0, Qt::DisplayRole, "[Branches]");
-        node->setData(0, Qt::UserRole, "Branches");
+        headerNode->setData(0, Qt::DisplayRole, "[Branches]");
+        headerNode->setData(0, Qt::UserRole, "Branches");
         break;
+    case (HeaderRemotes):
+        headerNode->setData(0, Qt::DisplayRole, "[Remotes]");
+        headerNode->setData(0, Qt::UserRole, "Remotes");
     case (HeaderTags):
-        node = new QTreeWidgetItem(this, HeaderTags);
-        node->setData(0, Qt::DisplayRole, "[Tags]");
-        node->setData(0, Qt::UserRole, "Tags");
+        headerNode->setData(0, Qt::DisplayRole, "[Tags]");
+        headerNode->setData(0, Qt::UserRole, "Tags");
         break;
     default:
         break;
     }
 
-    QFont font = node->font(0);
+    QFont font = headerNode->font(0);
     font.setBold(true);
-    node->setFont(0, font);
+    headerNode->setFont(0, font);
 
-    addTopLevelItem(node);
+    addTopLevelItem(headerNode);
+
+    QStringList referencesTypeList = m_git->getAllRefNames(type, !Git::optOnlyLoaded);
+    referencesTypeList.sort();
 
     QTreeWidgetItem *tempItemList;
 
-    FOREACH_SL (it, tempList) {
+    QString lastRemoteName;
+    QString remoteName;
+    QTreeWidgetItem* parentNode = headerNode;
+    QString text;
+    int i;
+
+    QString branchName;
+
+    FOREACH_SL (it, referencesTypeList) {
         bool isCurrent = (m_git->currentBranch().compare(*it) == 0);
 
         switch (headerType) {
         case (HeaderBranches):
-            tempItemList = new QTreeWidgetItem(node, LeafBranch);
+            tempItemList = new QTreeWidgetItem(headerNode, LeafBranch);
             tempItemList->setData(0, Qt::DisplayRole, QString(*it));
 
             if (isCurrent) {
@@ -109,8 +118,32 @@ void ReferenceTreeWidget::addNode(ItemType headerType, Reference::Type type)
             }
 
             break;
+        case (HeaderRemotes):
+            branchName = QString(*it);
+            i = branchName.indexOf("/");
+            if (i > 0) {
+                remoteName = branchName.left(i);
+                text = branchName.mid(i + 1);
+                if (remoteName.compare(lastRemoteName) != 0) {
+                    parentNode = new QTreeWidgetItem(headerNode, HeaderRemote);
+                    parentNode->setData(0, Qt::DisplayRole, remoteName);
+                    parentNode->setData(0, Qt::UserRole, remoteName);
+                    lastRemoteName = remoteName;
+                }
+            } else {
+                parentNode = headerNode;
+                text = branchName;
+                lastRemoteName = "";
+            }
+
+            tempItemList = new QTreeWidgetItem(parentNode, LeafRemote);
+            tempItemList->setData(0, Qt::DisplayRole, text);
+            tempItemList->setData(0, Qt::UserRole, branchName);
+            tempItemList->setIcon(0, QIcon(QString::fromUtf8(":/icons/resources/branch.png")));
+
+            break;
         case (HeaderTags):
-            tempItemList = new QTreeWidgetItem(node, LeafTag);
+            tempItemList = new QTreeWidgetItem(headerNode, LeafTag);
             tempItemList->setData(0, Qt::DisplayRole, QString(*it));
             tempItemList->setIcon(0, tagIcon);
             break;
@@ -119,51 +152,6 @@ void ReferenceTreeWidget::addNode(ItemType headerType, Reference::Type type)
         }
 
         tempItemList->setData(0, Qt::UserRole, QString(*it));
-    }
-}
-
-void ReferenceTreeWidget::addRemotesNodes()
-{
-    QTreeWidgetItem *headerNode;
-    headerNode = new QTreeWidgetItem(this, HeaderRemotes);
-    headerNode->setData(0, Qt::DisplayRole, "[Remotes]");
-    headerNode->setData(0, Qt::UserRole, "Remotes");
-    QFont font = headerNode->font(0);
-    font.setBold(true);
-    headerNode->setFont(0, font);
-
-    QStringList tempList = m_git->getAllRefNames(Reference::REMOTE_BRANCH, !Git::optOnlyLoaded);
-    tempList.sort();
-
-    QTreeWidgetItem *tempItemList;
-
-    QString lastRemoteName;
-    QString remoteName;
-    QTreeWidgetItem* parentNode = headerNode;
-    QString text;
-
-    FOREACH_SL (it, tempList) {
-        const QString& branchName = *it;
-        int i = branchName.indexOf("/");
-        if (i > 0) {
-            remoteName = branchName.left(i);
-            text = branchName.mid(i + 1);
-            if (remoteName.compare(lastRemoteName) != 0) {
-                parentNode = new QTreeWidgetItem(headerNode, HeaderRemote);
-                parentNode->setData(0, Qt::DisplayRole, remoteName);
-                parentNode->setData(0, Qt::UserRole, remoteName);
-                lastRemoteName = remoteName;
-            }
-        } else {
-            parentNode = headerNode;
-            text = branchName;
-            lastRemoteName = "";
-        }
-
-        tempItemList = new QTreeWidgetItem(parentNode, LeafRemote);
-        tempItemList->setData(0, Qt::DisplayRole, text);
-        tempItemList->setData(0, Qt::UserRole, branchName);
-        tempItemList->setIcon(0, QIcon(QString::fromUtf8(":/icons/resources/branch.png")));
     }
 }
 

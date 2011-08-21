@@ -49,7 +49,6 @@ private:
     QIcon tagIcon;
 
     void addNode(ItemType headerType, Reference::Type type);
-    void addRemotesNodes();
 
     void selectReference(const QString &reference);
 
