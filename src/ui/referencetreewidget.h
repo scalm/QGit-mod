@@ -55,8 +55,8 @@ private:
     void setAllItemsShown();
     void setShownItem(QTreeWidgetItem *item);
 
-    QTreeWidgetItem *findReference(const QString &branch);
-    QTreeWidgetItem *findReference(QTreeWidgetItem *parent, const QString &branch);
+    QTreeWidgetItem *findReference(const QString &reference);
+    QTreeWidgetItem *findReference(QTreeWidgetItem *parent, const QString &reference);
 
     bool isRegExpConformed(QString currentString, QString originalString);
     bool isItemShown(QTreeWidgetItem *item, QString currentString);

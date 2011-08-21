@@ -11,7 +11,7 @@ ReferenceTreeWidget::ReferenceTreeWidget(QWidget *parent) : QTreeWidget(parent),
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     QObject::connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
-                     this, SLOT(changeReference(QTreeWidgetItem*,int)));
+                     this, SLOT(changeReference(QTreeWidgetItem*, int)));
 
     QObject::connect(this, SIGNAL(customContextMenuRequested(QPoint)),
                      this, SLOT(contextMenu(QPoint)));
@@ -209,10 +209,10 @@ void ReferenceTreeWidget::selectReference(const QString &reference)
         setCurrentItem(item);
 }
 
-QTreeWidgetItem* ReferenceTreeWidget::findReference(const QString& branch)
+QTreeWidgetItem* ReferenceTreeWidget::findReference(const QString &reference)
 {
     for (int i = 0; i < topLevelItemCount(); i++) {
-        QTreeWidgetItem* item = findReference(topLevelItem(i), branch);
+        QTreeWidgetItem* item = findReference(topLevelItem(i), reference);
 
         if (item)
             return item;
@@ -221,18 +221,19 @@ QTreeWidgetItem* ReferenceTreeWidget::findReference(const QString& branch)
     return NULL;
 }
 
-QTreeWidgetItem* ReferenceTreeWidget::findReference(QTreeWidgetItem* parent, const QString& branch)
+QTreeWidgetItem* ReferenceTreeWidget::findReference(QTreeWidgetItem *parent,
+                                                    const QString & reference)
 {
     if (parent->type() == LeafBranch
             || parent->type() == LeafRemote
             || parent->type() == LeafTag) {
-        if (parent->data(0, Qt::UserRole).toString().compare(branch) == 0) {
+        if (parent->data(0, Qt::UserRole).toString().compare(reference) == 0) {
             return parent;
         }
     }
 
     for (int j = 0; j < parent->childCount(); j++) {
-        QTreeWidgetItem* foundItem = findReference(parent->child(j), branch);
+        QTreeWidgetItem* foundItem = findReference(parent->child(j), reference);
         if (foundItem)
             return foundItem;
     }
@@ -277,8 +278,8 @@ void ReferenceTreeWidget::contextMenu(const QPoint & pos)
 
 void ReferenceTreeWidget::checkout()
 {
-    QString branch = (checkoutAction->data()).toString();
-    m_domain->m()->checkout(branch);
+    QString reference = (checkoutAction->data()).toString();
+    m_domain->m()->checkout(reference);
     update();
 }
 
@@ -324,7 +325,6 @@ void ReferenceTreeWidget::showSearchedItems(QString searchedText)
             }
         }
     }
-
 }
 
 bool ReferenceTreeWidget::isItemShown(QTreeWidgetItem *item, QString currentString)
