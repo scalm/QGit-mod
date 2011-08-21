@@ -78,7 +78,7 @@
             <widget class="QLineEdit" name="searchBranchLineEdit"/>
            </item>
            <item>
-            <widget class="BranchesTree" name="branchesTree">
+            <widget class="ReferenceTreeWidget" name="referenceTreeWidget">
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
              </property>
@@ -891,15 +891,15 @@
    <header>treeview.h</header>
   </customwidget>
   <customwidget>
-   <class>BranchesTree</class>
-   <extends>QTreeWidget</extends>
-   <header>branchestree.h</header>
-  </customwidget>
-  <customwidget>
    <class>CustomTabWidget</class>
    <extends>QTabWidget</extends>
    <header>ui/customtabwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReferenceTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>ui/referencetreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

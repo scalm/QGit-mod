@@ -189,13 +189,13 @@ MainImpl::MainImpl(SCRef cd, QWidget *parent) : QMainWindow(parent)
             searchBranchLineEdit, SLOT(setFocus()));
 
     connect(hideSearchBranchLineEditAction, SIGNAL(triggered()),
-            branchesTree, SLOT(showSearchBranchesItems()));
+            referenceTreeWidget, SLOT(showSearchedItems()));
 
     connect(hideSearchBranchLineEditAction, SIGNAL(triggered()),
             searchBranchLineEdit, SLOT(hide()));
 
     connect(searchBranchLineEdit, SIGNAL(textChanged(QString)),
-            branchesTree, SLOT(showSearchBranchesItems(QString)));
+            referenceTreeWidget, SLOT(showSearchedItems(QString)));
 
     Search->addAction(showSearchBranchLineEditAction);
     Search->addAction(hideSearchBranchLineEditAction);
@@ -423,8 +423,8 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
                     updateRecentRepoMenu(curDir);
                     Domain* d;
                     currentTabType(&d);
-                    branchesTree->setup(d, git);
-                    branchesTree->update();
+                    referenceTreeWidget->setup(d, git);
+                    referenceTreeWidget->update();
             } else {
                 statusBar()->showMessage("Not a git archive");
             }
